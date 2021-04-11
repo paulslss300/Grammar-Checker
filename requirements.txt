@@ -2,6 +2,7 @@
 
 # Testing and code checking
 pytest
+python-ta~=1.6.3
 
 # Generate constituency parse tree
 benepar~=0.2.0
