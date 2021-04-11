@@ -1,0 +1,8 @@
+# Python Grammar Correction Program for English using Constituency Parse Tree: Python libraries used in project.
+
+# Testing and code checking
+pytest
+
+# Generate constituency parse tree
+benepar~=0.2.0
+spacy~=3.0.5
