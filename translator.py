@@ -1,11 +1,20 @@
 """
 This file contains the translate() function that converts a passage of English text into
-GrammarTree object(s). # TODO: add copyright info
+GrammarTree object(s).
+
+Note that I have accessed protected members of a class in _create_grammar_tree() and
+_debugger(). This is unfortunately THE way to do it (at least for now), as outlined
+in the documentation of benepar (https://pypi.org/project/benepar/):
+
+"Since spaCy does not provide an official constituency parsing API, all methods are
+accessible through the extension namespaces Span._ and Token._"
+
+This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
 from typing import Any
 import benepar
 import spacy
-from t1 import GrammarTree # TODO: link to GrammarTree.py
+from GrammarTree import GrammarTree
 
 
 # download and load parsing model
@@ -84,6 +93,9 @@ def _debugger(sentence: str) -> None:
 def examples() -> None:
     """Print out (to the console) examples of translations of English text into
     GrammarTree objects using the translate() function.
+
+    To see what the labels mean in the printed tree, check out:
+    http://www.surdeanu.info/mihai/teaching/ista555-fall13/readings/PennTreebankConstituents.html
     """
     # example 1 taken from https://lingua.com/english/reading/wonderful-family/ and modified
     example1 = "I live in a house near the mountains. " \
@@ -103,3 +115,12 @@ def examples() -> None:
 
 if __name__ == '__main__':
     examples()
+
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 100,
+        'disable': ['E9997'],
+        'extra-imports': ['typing', 'benepar', 'spacy', 'GrammarTree'],
+        'allowed-io': ['examples', '_debugger'],
+        'max-nested-blocks': 4
+    })
