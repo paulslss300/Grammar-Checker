@@ -11,7 +11,7 @@ accessible through the extension namespaces Span._ and Token._"
 
 This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
-from typing import Any
+from typing import Any, Dict
 import benepar
 import spacy
 from GrammarTree import GrammarTree
@@ -25,7 +25,7 @@ nlp.add_pipe("benepar", config={"model": "benepar_en3"})
 
 
 def translate(text: str) -> [GrammarTree]:
-    """Create a list of GrammarTree object (each GrammarTree object represents a sentence)
+    """Return a list of GrammarTree object (each GrammarTree object represents a sentence)
     based on the input text using the benepar library.
 
     Precondition:
@@ -43,7 +43,7 @@ def translate(text: str) -> [GrammarTree]:
 
 
 def _create_grammar_tree(tree: Any) -> GrammarTree:
-    """Create a GrammarTree object for the given constituent parse tree object
+    """Return a GrammarTree object for the given constituent parse tree object
     outputted by the benepar library.
 
     From the documentation, spaCy does not provide an official constituency parsing API,
@@ -55,14 +55,18 @@ def _create_grammar_tree(tree: Any) -> GrammarTree:
     # sums up the number of children of tree (tree._.children is an iterator)
     if sum(1 for _ in tree._.children) == 0:
         parse_string_lst = str(tree._.parse_string).replace("(", "").replace(")", "").split()
-        assert 2 <= len(parse_string_lst) <= 3
+        assert 2 <= len(parse_string_lst)
         # if len(parse_string_lst) == 2, tree represents a word (i.e. tree is a leaf)
-        # if len(parse_string_lst) == 3, tree represents a unary chain of length 2 (special case)
+        # if len(parse_string_lst) > 2, tree represents a unary chain of length
+        # len(parse_string_lst) - 1 (special case)
         if len(parse_string_lst) == 2:
             label, text = parse_string_lst[0], parse_string_lst[1]
         else:
-            leaf = GrammarTree(parse_string_lst[1], [], parse_string_lst[2])
-            return GrammarTree(parse_string_lst[0], [leaf], "")
+            dict_lst = []
+            for parse_str in parse_string_lst[:-2]:
+                dict_lst.append({"label": parse_str, "text": ""})
+            dict_lst.append({"label": parse_string_lst[-2], "text": parse_string_lst[-1]})
+            return _create_grammar_tree_lst(dict_lst)
     else:
         # tree represents a clause or a phrase that is not a unary chain
         label, text = str(tree._.labels[0]), ""
@@ -71,6 +75,24 @@ def _create_grammar_tree(tree: Any) -> GrammarTree:
                                [_create_grammar_tree(subtree) for subtree in tree._.children],
                                text)
     return grammar_tree
+
+
+def _create_grammar_tree_lst(lst: [Dict]) -> GrammarTree:
+    """Return a GrammarTree that is a chain (i.e. the root and every subtree in the
+    GrammarTree has only 1 child) based on the input list of dictionaries. For each
+    dictionary in the input list, the dictionary at index i + 1 is the _root value of
+    a GrammarTree that is the child of the GrammarTree whose _root value is the dictionary
+    at index i.
+
+    Precondition:
+        - len(lst) >= 1
+        - the keys of every dictionary in lst are "label" and "text" and their
+        values are strings.
+    """
+    if len(lst) == 1:
+        return GrammarTree(lst[0]["label"], [], lst[0]["text"])
+    else:
+        return GrammarTree(lst[0]["label"], [_create_grammar_tree_lst(lst[1:])], lst[0]["text"])
 
 
 def _debugger(sentence: str) -> None:
