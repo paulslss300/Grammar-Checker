@@ -118,7 +118,22 @@ class GrammarTree:
         """
         return multiple_verbs_in_one_simple_sentence(self)
 
+    def a_complete_sentence_or_not(self) -> bool:
+        """Use the helper in _grammar_checking_methods2.py"""
+        return a_complete_sentence_or_not(self)
 
+    def check_adj(self) -> Optional[str]:
+        """Use the helper in _grammar_checking_methods2.py"""
+        return check_adj(self)
+
+    def check_vbg(self) -> Optional[str]:
+        """Use the helper in _grammar_checking_methods2.py"""
+        return check_vbg(self)
+
+    def check_conjunction(self) -> Optional[str]:
+        """Use the helper in _grammar_checking_methods2.py"""
+        return check_conjunction(self)
+    
 vbz2 = GrammarTree('VBZ', [], 'sings')
 vbz1 = GrammarTree('VBZ', [], 'runs')
 prp1 = GrammarTree('PRP', [], 'He')
