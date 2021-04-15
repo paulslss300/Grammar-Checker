@@ -95,31 +95,62 @@ class GrammarTree:
         else:
             return any(i.contain_content(word_or_punc) for i in self._subtrees)
 
-    def plural_nouns_match_singular_verb_use(self) -> str:
+    def check_selected_rules(self, rules_lst: list[str]) -> [str]:
+        """Checks the selected grammar rules on the tree and return feedback.
+        Note that if the input list contains only "*", the function checks all
+        implemented grammar rules on the tree and return feedback.
+
+        Preconditions:
+            - every element in rules_lst are keys in methods_mapping or
+            rules_lst == ["*"].
+        """
+        methods_mapping = {'r1': gc1.plural_nouns_match_singular_verb,
+                           'r2': gc1.singular_noun_match_plural_verb,
+                           'r3': gc1.check_noun_plural_and_singular,
+                           'r4': gc1.check_end_punctuations,
+                           'r5': gc1.existence_of_noun,
+                           'r6': gc1.multiple_verbs_in_one_simple_sentence,
+                           'r7': gc2.a_complete_sentence_or_not,
+                           'r8': gc2.check_adj,
+                           'r9': gc2.check_vbg,
+                           'r10': gc2.check_conjunction}
+        assert rules_lst == ["*"] or all(r in methods_mapping for r in rules_lst)
+
+        feedback = []
+
+        if rules_lst == ["*"]:
+            checks_lst = list(methods_mapping.keys())
+        else:
+            checks_lst = rules_lst
+        for rule in checks_lst:
+            feedback.append(methods_mapping[rule](self))
+        return feedback
+
+    def plural_nouns_match_singular_verb(self) -> str:
         """
         Use the helper in _grammar_checking_methods1.py
         """
         return gc1.plural_nouns_match_singular_verb(self)
 
-    def singular_noun_match_plural_verb_use(self) -> str:
+    def singular_noun_match_plural_verb(self) -> str:
         """
         Use the helper in _grammar_checking_methods1.py
         """
         return gc1.singular_noun_match_plural_verb(self)
 
-    def check_noun_plural_and_singular_use(self) -> str:
+    def check_noun_plural_and_singular(self) -> str:
         """
         Use the helper in _grammar_checking_methods1.py
         """
         return gc1.check_noun_plural_and_singular(self)
 
-    def check_end_punctuations_use(self) -> str:
+    def check_end_punctuations(self) -> str:
         """
         Use the helper in _grammar_checking_methods1.py
         """
         return gc1.check_end_punctuations(self)
 
-    def existence_of_noun_use(self) -> str:
+    def existence_of_noun(self) -> str:
         """
         Use the helper in _grammar_checking_methods1.py
         """
