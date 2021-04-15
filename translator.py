@@ -14,8 +14,7 @@ This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 from typing import Any, Dict
 import benepar
 import spacy
-from GrammarTree import GrammarTree
-
+from grammar_tree import GrammarTree
 
 # download and load parsing model
 spacy.cli.download("en_core_web_md")
@@ -142,7 +141,7 @@ if __name__ == '__main__':
     python_ta.check_all(config={
         'max-line-length': 100,
         'disable': ['E9997'],
-        'extra-imports': ['typing', 'benepar', 'spacy', 'GrammarTree'],
+        'extra-imports': ['typing', 'benepar', 'spacy', 'grammar_tree'],
         'allowed-io': ['examples', '_debugger'],
         'max-nested-blocks': 4
     })
