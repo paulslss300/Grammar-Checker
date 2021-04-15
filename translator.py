@@ -97,18 +97,19 @@ def _create_grammar_tree_lst(lst: [Dict]) -> GrammarTree:
 def _debugger(sentence: str) -> None:
     """Used as debugger tool for the developers."""
     doc = nlp(sentence)
-    tree = list(doc.sents)[0]
 
-    for constituent in tree._.constituents:
-        cons_type = str(type(constituent))
-        parse_str = str(constituent._.parse_string)
-        children = list(constituent._.children)
-        labels = str(constituent._.labels)
-        print(f"type: {cons_type},"
-              f"parse_string: {parse_str}, "
-              f"children: {children}, "
-              f"labels: {labels}")
-        print("=========")
+    for tree in list(doc.sents):
+        for constituent in tree._.constituents:
+            cons_type = str(type(constituent))
+            parse_str = str(constituent._.parse_string)
+            children = list(constituent._.children)
+            labels = str(constituent._.labels)
+            print(f"type: {cons_type},"
+                  f"parse_string: {parse_str}, "
+                  f"children: {children}, "
+                  f"labels: {labels}")
+            print("=========")
+        print('=============================')
 
 
 def examples() -> None:
