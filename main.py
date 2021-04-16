@@ -122,6 +122,13 @@ def test_existence_of_subject() -> None:
            (test5.existence_of_subject().type == 2) and \
            (test5.existence_of_subject().type_str == 'Possible Error')
 
+
+def test_complete_sentence() -> None:
+    """This is the test function test the check_complete_sentence in file
+    grammar_checking_tree.py"""
+    string = 'She beautiful.'
+    test = translate(string)[0]
+    assert test.check_adj().type == 2
     
 def test_check_adj1() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
@@ -215,14 +222,14 @@ def test_check_verb5() -> None:
 
 
 def test_check_parallelism() -> None:
-    """This is the test function test the check_verb in file grammar_checking_tree.py"""
+    """This is the test function test the check_parallelism in file grammar_checking_tree.py"""
     string = 'A cool and clever Canadian man.'
     test = translate(string)[0]
     assert test.check_adj().type == 1
 
 
 def test_check_parallelism2() -> None:
-    """This is the test function test the check_verb in file grammar_checking_tree.py"""
+    """This is the test function test the check_parallelism in file grammar_checking_tree.py"""
     string = 'A cool and clever Canadian man.'
     test = translate(string)[0]
     assert test.check_adj().message == 'hard to determinate: the left side of the conjunction ' \
