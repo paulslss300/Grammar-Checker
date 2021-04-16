@@ -12,7 +12,7 @@ def test_find_the_last() -> None:
     assert tree.find_the_last() == "?"
 
     tree = translate("He is mad")[0]
-    assert tree.find_the_last() == tree.get_subtrees()[-1].get_root()["text"]
+    assert tree.find_the_last() == tree.subtrees[-1].root["text"]
 
 
 def test_contain_type() -> None:
