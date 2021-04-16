@@ -241,6 +241,11 @@ class GrammarCheckingTree(GrammarTree):
             # check the type of self first
             if self.root['label'] == 'SQ':
                 whether_question = True
+                for i in range(0, len(self.subtrees) - 1):
+                    if self.subtrees[i].root['label'] == 'NP' or 'NN' and \
+                            self.subtrees[i + 1].root['label'] == 'ADJP' \
+                            or self.subtrees[i + 1].root['label'] == 'ADJ':
+                        return Feedback(1)
 
             if self.root['label'] == 'JJ':
                 if whether_question:
