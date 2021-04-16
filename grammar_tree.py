@@ -1,7 +1,6 @@
 """
 This file contains the GrammarTree class, which is a recursive tree data structure
 that represents a constituent parse tree of an English sentence.
-
 This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
 
@@ -10,7 +9,6 @@ class GrammarTree:
     """
     A recursive tree data structure that represents a constituent parse tree of an
     English sentence.
-
     Instance Attributes:
         - root:
             Stores the constituent tag (e.g. "S", "NP", "VP", "NN", etc.) of the tree
@@ -20,7 +18,6 @@ class GrammarTree:
             Stores a list of GrammarTree objects that represent children of the
             constituent parse tree this GrammarTree is representing. _subtrees is
             empty means this GrammarTree represents a constituent parse tree of a word.
-
     Representation Invariants:
         - (self._subtrees == []) == (self._root["text"] != "")
     """
@@ -38,7 +35,6 @@ class GrammarTree:
 
     def _str_indented(self, depth: int) -> str:
         """Return an indented string representation of this tree.
-
         The indentation level is specified by the <depth> parameter.
         """
         if self.root == []:
@@ -56,7 +52,6 @@ class GrammarTree:
         """Return the end punctuation of the sentence represented by the tree, if
         the sentence has an end punctuation. Otherwise, the returned string is
         the _root['text'] value of the last subtree of this tree.
-
         Example usages see test_find_the_last() in tests_GrammarTree_methods.py.
         """
         s = self
@@ -65,7 +60,6 @@ class GrammarTree:
 
     def contain_type(self, kind: str) -> bool:
         """Return whether the entire tree contains the input type of constituent tag.
-
         Example usages see test_contain_type() in tests_GrammarTree_methods.py.
         """
         if self.root['label'] == kind:
@@ -75,7 +69,6 @@ class GrammarTree:
 
     def contain_content(self, word_or_punc: str) -> bool:
         """Return whether the entire tree contains the input word/punctuation mark.
-
         Example usages see test_contain_content() in tests_GrammarTree_methods.py.
         """
         if self.root['text'] == word_or_punc:
@@ -84,12 +77,12 @@ class GrammarTree:
             return any(i.contain_content(word_or_punc) for i in self.subtrees)
 
 
-if __name__ == '__main__':
-    import python_ta
-    python_ta.check_all(config={
-        'max-line-length': 100,
-        'disable': ['E1136'],
-        'extra-imports': [],
-        'allowed-io': [],
-        'max-nested-blocks': 4
-    })
+# if __name__ == '__main__':
+#     import python_ta
+#     python_ta.check_all(config={
+#         'max-line-length': 100,
+#         'disable': ['E1136'],
+#         'extra-imports': [],
+#         'allowed-io': [],
+#         'max-nested-blocks': 4
+#     })
