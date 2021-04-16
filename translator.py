@@ -14,7 +14,7 @@ This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 from typing import Any, Dict
 import benepar
 import spacy
-from grammar_tree import GrammarTree
+from grammar_checking_tree import GrammarCheckingTree
 
 # download and load parsing model
 spacy.cli.download("en_core_web_md")
@@ -23,7 +23,7 @@ nlp = spacy.load("en_core_web_md")
 nlp.add_pipe("benepar", config={"model": "benepar_en3"})
 
 
-def translate(text: str) -> [GrammarTree]:
+def translate(text: str) -> [GrammarCheckingTree]:
     """Return a list of GrammarTree object (each GrammarTree object represents a sentence)
     based on the input text using the benepar library.
 
@@ -41,7 +41,7 @@ def translate(text: str) -> [GrammarTree]:
     return grammar_trees
 
 
-def _create_grammar_tree(tree: Any) -> GrammarTree:
+def _create_grammar_tree(tree: Any) -> GrammarCheckingTree:
     """Return a GrammarTree object for the given constituent parse tree object
     outputted by the benepar library.
 
@@ -70,13 +70,14 @@ def _create_grammar_tree(tree: Any) -> GrammarTree:
         # tree represents a clause or a phrase that is not a unary chain
         label, text = str(tree._.labels[0]), ""
 
-    grammar_tree = GrammarTree(label,
-                               [_create_grammar_tree(subtree) for subtree in tree._.children],
-                               text)
+    grammar_tree = GrammarCheckingTree(label,
+                                       [_create_grammar_tree(subtree) for subtree in
+                                        tree._.children],
+                                       text)
     return grammar_tree
 
 
-def _create_grammar_tree_lst(lst: [Dict]) -> GrammarTree:
+def _create_grammar_tree_lst(lst: [Dict]) -> GrammarCheckingTree:
     """Return a GrammarTree that is a chain (i.e. the root and every subtree in the
     GrammarTree has only 1 child) based on the input list of dictionaries. For each
     dictionary in the input list, the dictionary at index i + 1 is the _root value of
@@ -89,9 +90,10 @@ def _create_grammar_tree_lst(lst: [Dict]) -> GrammarTree:
         values are strings.
     """
     if len(lst) == 1:
-        return GrammarTree(lst[0]["label"], [], lst[0]["text"])
+        return GrammarCheckingTree(lst[0]["label"], [], lst[0]["text"])
     else:
-        return GrammarTree(lst[0]["label"], [_create_grammar_tree_lst(lst[1:])], lst[0]["text"])
+        return GrammarCheckingTree(lst[0]["label"], [_create_grammar_tree_lst(lst[1:])],
+                                   lst[0]["text"])
 
 
 def _debugger(sentence: str) -> None:
@@ -142,7 +144,7 @@ if __name__ == '__main__':
     python_ta.check_all(config={
         'max-line-length': 100,
         'disable': ['E9997'],
-        'extra-imports': ['typing', 'benepar', 'spacy', 'grammar_tree'],
+        'extra-imports': ['typing', 'benepar', 'spacy', 'grammar_checking_tree'],
         'allowed-io': ['examples', '_debugger'],
         'max-nested-blocks': 4
     })
