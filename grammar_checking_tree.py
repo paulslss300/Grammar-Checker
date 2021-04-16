@@ -222,7 +222,7 @@ class GrammarCheckingTree(GrammarTree):
     #             and a verb phrase (i.e. minimum requirement for the sentence to be
     #             complete).
 
-        def check_complete_sentence(self) -> Feedback:
+    def check_complete_sentence(self) -> Feedback:
         """Check whether the sentence represented by the tree has a noun phrase
         and a verb phrase (i.e. minimum requirement for the sentence to be
         complete).
