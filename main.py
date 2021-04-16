@@ -128,7 +128,7 @@ def test_complete_sentence() -> None:
     grammar_checking_tree.py"""
     string = 'She beautiful.'
     test = translate(string)[0]
-    assert test.check_adj().type == 2
+    assert test.a_complete_sentence().type == 2
 
 
 def test_check_adj1() -> None:
@@ -226,7 +226,7 @@ def test_check_parallelism() -> None:
     """This is the test function test the check_parallelism in file grammar_checking_tree.py"""
     string = 'A cool and clever Canadian man.'
     test = translate(string)[0]
-    assert test.check_verb().type == 1
+    assert test.check_parallelism().type == 1
 
 
 def test_check_parallelism2() -> None:
