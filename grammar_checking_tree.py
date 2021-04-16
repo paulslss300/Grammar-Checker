@@ -270,9 +270,9 @@ class GrammarCheckingTree(GrammarTree):
                     if result != '':
                         return result
 
-                return 'can not easily judge'
+                return 'can not easily judge: no error so far'
 
-            elif self.root['label'] == 'VP':
+            elif self.root['label'] == 'VP' or self.root['label'] == 'S':
                 # adj must follow the verb because the first element in VP is verb
                 if self.subtrees[0].root['label'] == 'JJ':
                     # The man happy is.
@@ -295,7 +295,7 @@ class GrammarCheckingTree(GrammarTree):
                         result = x.check_adjective(whether_question)
                         if result != '':
                             return result
-                    return 'can not easily judge'
+                    return 'can not easily judge: no error so far'
             else:
                 # adj not in self.subtree.
                 for x in self.subtrees:
@@ -356,7 +356,7 @@ class GrammarCheckingTree(GrammarTree):
                 if result != '':
                     return result
 
-            return ''
+            return 'can not easily judge: no error so far'
 
         else:
             return ''
@@ -373,6 +373,8 @@ class GrammarCheckingTree(GrammarTree):
 
             for x in self.subtrees:
                 x.check_parallelism()
+
+            return 'Hard to determinate'
 
         else:
             return
