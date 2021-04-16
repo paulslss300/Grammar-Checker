@@ -129,111 +129,112 @@ def test_complete_sentence() -> None:
     string = 'She beautiful.'
     test = translate(string)[0]
     assert test.check_adj().type == 2
-    
+
+
 def test_check_adj1() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'He is cool.'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_adjective().type == 1
 
 
 def test_check_adj2() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'She beautiful.'
     test = translate(string)[0]
-    assert test.check_adj().type == 2
+    assert test.check_adjective().type == 2
 
 
 def test_check_adj3() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'The man who is handsome has a cool car.'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_adjective().type == 1
 
 
 def test_check_adj4() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'The man who happy play.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'adj can not be adverb'
+    assert test.check_adjective().message == 'adj can not be adverb'
 
 
 def test_check_adj5() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'The man who happy is Tom.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'adj in wrong position, maybe lack linking-verb'
+    assert test.check_adjective().message == 'adj in wrong position, maybe lack linking-verb'
 
 
 def test_check_adj6() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'The man happy is cool.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'There may no linking verb before adj'
+    assert test.check_adjective().message == 'There may no linking verb before adj'
 
 
 def test_check_adj7() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'The man has a dog.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'no adj inside or use adj wrongly'
+    assert test.check_adjective().message == 'no adj inside or use adj wrongly'
 
 
 def test_check_adj8() -> None:
     """This is the test function test the check_adj in file grammar_checking_tree.py"""
     string = 'Is he cool?'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_adjective().type == 1
 
 
 def test_check_verb1() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'He is swimming.'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_verb().type == 1
 
 
 def test_check_verb2() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'He is cool.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'no verb_ing inside or use verb_ing incorrectly'
+    assert test.check_verb().message == 'no verb_ing inside or use verb_ing incorrectly'
 
 
 def test_check_verb3() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'He eats eating'
     test = translate(string)[0]
-    assert test.check_adj().type == 2
+    assert test.check_verb().type == 2
 
 
 def test_check_verb4() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'The man who likes eating and drinking.'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_verb().type == 1
 
 
 def test_check_verb5() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'The man who likes eating drinking.'
     test = translate(string)[0]
-    assert test.check_adj().messate == 'it is hard to determinate'
+    assert test.check_verb().messate == 'it is hard to determinate'
 
 
 def test_check_parallelism() -> None:
     """This is the test function test the check_parallelism in file grammar_checking_tree.py"""
     string = 'A cool and clever Canadian man.'
     test = translate(string)[0]
-    assert test.check_adj().type == 1
+    assert test.check_verb().type == 1
 
 
 def test_check_parallelism2() -> None:
     """This is the test function test the check_parallelism in file grammar_checking_tree.py"""
     string = 'A cool and clever Canadian man.'
     test = translate(string)[0]
-    assert test.check_adj().message == 'hard to determinate: the left side of the conjunction ' \
-                                       'is not parallel to the right side.'
+    assert test.check_parallelism().message == 'hard to determinate: the left side of the ' \
+                                               'conjunction is not parallel to the right side.'
 
 
 if __name__ == '__main__':
