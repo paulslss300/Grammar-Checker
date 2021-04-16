@@ -238,28 +238,29 @@ class GrammarCheckingTree(GrammarTree):
             if self.root['label'] == 'NP':
                 # adj before a noun
 
-                for i in range(0, len(self.subtrees)):
+                for i in range(0, len(self.subtrees) - 1):
                     # eg. He is a cool Canadian boy
                     # noun is not followed the adj or adjp(cool and young).
                     # eg. A [cool and young](adjp) boy/ a cool boy.
-                    if i != len(self.subtrees) - 1 and \
-                            (self.subtrees[i].root['label'] == 'JJ'
-                             or self.subtrees[i].root['label'] == 'ADJP') \
-                            and (self.subtrees[i + 1].root['label'] == 'NN'
-                                 or self.subtrees[i + 1].root['label'] == 'NNS'):
+
+                    condition1 = self.subtrees[i].root['label'] == 'JJ' or self.subtrees[i] \
+                        .root['label'] == 'ADJP'
+                    condition2 = self.subtrees[i + 1].root['label'] == 'NN' or self. \
+                        subtrees[i + 1].root['label'] == 'NNS'
+                    if condition1 and condition2:
                         if whether_question:
                             return 'it is a question sentence and difficult to determinate'
                         else:
                             return None
 
-                    elif i != len(self.subtrees) - 1 \
-                            and (self.subtrees[i].root['label'] == 'NN'
-                                 or self.subtrees[i].root['label']
-                                 == 'NNP' or self.subtrees[i].root[
-                                     'label'] == 'NNS' or self.subtrees[i].root['label'] == 'NP') \
-                            and (self.subtrees[i + 1].root['label'] == 'JJ'
-                                 or self.subtrees[i + 1].
-                                 root['label'] == 'ADJP'):
+                    condition3 = (self.subtrees[i].root['label'] == 'NN'
+                                  or self.subtrees[i].root['label']
+                                  == 'NNP' or self.subtrees[i].root['label'] == 'NNS' or self.
+                                  subtrees[i].root['label'] == 'NP')
+                    condition4 = (self.subtrees[i + 1].root['label'] == 'JJ'
+                                  or self.subtrees[i + 1].
+                                  root['label'] == 'ADJP')
+                    if condition3 and condition4:
                         if whether_question:
                             return 'This is a question sentence and may no mistake'
                         else:
@@ -278,12 +279,12 @@ class GrammarCheckingTree(GrammarTree):
                     # The man happy is.
                     return "adj in wrong position, maybe lack linking-verb"
 
+                condition5 = self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
+                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or self.subtrees[0] \
+                    .root['text'] == 'was' or self.subtrees[0].root['text'] == 'were'
                 if self.subtrees[1].root['label'] == 'JJ' \
                         or self.subtrees[1].root['label'] == 'ADJP' \
-                        and self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
-                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
-                        or self.subtrees[0].root['text'] == 'was' \
-                        or self.subtrees[0].root['text'] == 'were':
+                        and condition5:
                     # eg. The man is cool.
                     if whether_question:
                         return 'this is a question sentence and difficult to judge'
@@ -332,18 +333,20 @@ class GrammarCheckingTree(GrammarTree):
                 # if VBG is in the subtree of VP
 
                 if self.subtrees[0].root['label'] == 'VBG':
-                    return 'This may be true or lacks be/like or use verbing incorrectly'
+                    return 'This may lack be/like or use verbing incorrectly'
 
             # If VP contains VBG
             elif self.root['label'] == 'VP' or self.root['label'] == 'S':
-                if self.subtrees[0].root['text'] == 'am' \
-                        or self.subtrees[0].root['text'] == 'is' \
-                        or self.subtrees[0].root['text'] == 'are' \
-                        or self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root[
-                    'text'] == 'were' or self.subtrees[0].root['text'] == 'like' \
-                        or self.subtrees[0].root['text'] == 'likes' \
-                        and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
+                condition1 = self.subtrees[0].root['text'] == 'am' or self. \
+                    subtrees[0].root['text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
+                    or self.subtrees[0].root['text'] == 'was'
+                if condition1 and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
                     # be/like + verbing
+                    return None
+                if self.subtrees[0].root[
+                        'text'] == 'were' or self.subtrees[0].root['text'] == 'like' \
+                        or self.subtrees[0].root['text'] == 'likes' \
+                        and self.subtrees[1].subtrees[0].subtrees[0].root['label'] == 'VBG':
                     return None
                 for x in self.subtrees:
                     result = x.check_verb()
@@ -374,10 +377,10 @@ class GrammarCheckingTree(GrammarTree):
             for x in self.subtrees:
                 x.check_parallelism()
 
-            return 'Hard to determinate'
+            return None
 
         else:
-            return
+            return None
 
 
 if __name__ == '__main__':
