@@ -247,10 +247,10 @@ class GrammarCheckingTree(GrammarTree):
                              or self.subtrees[i].root['label'] == 'ADJP') \
                             and (self.subtrees[i + 1].root['label'] == 'NN'
                                  or self.subtrees[i + 1].root['label'] == 'NNS'):
-                        if not whether_question:
-                            return ''
-                        else:
+                        if whether_question:
                             return 'it is a question sentence and difficult to determinate'
+                        else:
+                            return None
 
                     elif i != len(self.subtrees) - 1 \
                             and (self.subtrees[i].root['label'] == 'NN'
@@ -267,7 +267,7 @@ class GrammarCheckingTree(GrammarTree):
 
                 for x in self.subtrees:
                     result = x.check_adjective(whether_question)
-                    if result != '':
+                    if result != 'no adj inside or use adj wrongly':
                         return result
 
                 return 'can not easily judge: no error so far'
@@ -276,7 +276,7 @@ class GrammarCheckingTree(GrammarTree):
                 # adj must follow the verb because the first element in VP is verb
                 if self.subtrees[0].root['label'] == 'JJ':
                     # The man happy is.
-                    return "adj in wrong position"
+                    return "adj in wrong position, maybe lack linking-verb"
 
                 if self.subtrees[1].root['label'] == 'JJ' \
                         or self.subtrees[1].root['label'] == 'ADJP' \
@@ -285,27 +285,27 @@ class GrammarCheckingTree(GrammarTree):
                         or self.subtrees[0].root['text'] == 'was' \
                         or self.subtrees[0].root['text'] == 'were':
                     # eg. The man is cool.
-                    if not whether_question:
-                        return ''
-                    else:
+                    if whether_question:
                         return 'this is a question sentence and difficult to judge'
+                    else:
+                        return None
                 else:
                     # NP may in the subtree of VP. eg. He is a cool Canadian boy.
                     for x in self.subtrees:
                         result = x.check_adjective(whether_question)
-                        if result != '':
+                        if result != 'no adj inside or use adj wrongly':
                             return result
                     return 'can not easily judge: no error so far'
             else:
                 # adj not in self.subtree.
                 for x in self.subtrees:
                     result = x.check_adjective(whether_question)
-                    if result != '':
+                    if result != 'no adj inside or use adj wrongly':
                         return result
-            return ''
+            return 'can not easily judge: no error so far'
 
         else:
-            return ''
+            return 'no adj inside or use adj wrongly'
 
     def check_verb(self) -> Optional[str]:
         """check the verb_ing form
@@ -325,7 +325,7 @@ class GrammarCheckingTree(GrammarTree):
             if self.root['label'] == 'SBAR':
                 for x in self.subtrees:
                     result = x.check_verb()
-                    if result != '':
+                    if result != 'no adj inside':
                         return result
             if self.root['label'] == 'VP' and any([sub.root['label'] == 'VBG' for sub
                                                    in self.subtrees]):
@@ -347,19 +347,19 @@ class GrammarCheckingTree(GrammarTree):
                     return ''
                 for x in self.subtrees:
                     result = x.check_verb()
-                    if result != '':
+                    if result != 'no adj inside':
                         return result
 
             # vbg not in self.subtree
             for x in self.subtrees:
                 result = x.check_verb()
-                if result != '':
+                if result != 'no adj inside':
                     return result
 
             return 'can not easily judge: no error so far'
 
         else:
-            return ''
+            return 'no adj inside'
 
     def check_parallelism(self) -> Optional[str]:
         """Check whether both sides of the conjunction are parallel """
