@@ -31,12 +31,12 @@ class GrammarCheckingTree(GrammarTree):
             - every element in rules_lst are keys in methods_mapping or
             rules_lst == ["*"].
         """
-        methods_mapping = {'r1': self.check_plural_noun_to_singular_verb,
-                           'r2': self.check_singular_noun_to_plural_verb,
+        methods_mapping = {'r1': self.plural_noun_singular_verb,
+                           'r2': self.singular_noun_plural_verb,
                            'r3': self.check_noun_to_verb,
                            'r4': self.check_end_punctuation,
                            'r5': self.existence_of_subject,
-                           'r6': self.multiple_verbs_in_one_simple_sentence,
+                           'r6': self.multiverbs_match_mistake,
                            'r7': self.check_complete_sentence,
                            'r8': self.check_adjective,
                            'r9': self.check_verb,
@@ -57,7 +57,7 @@ class GrammarCheckingTree(GrammarTree):
     # ------------- Below are Joseph's methods ------------------------
     # ----------------------------------------------------------------
 
-    def check_plural_noun_to_singular_verb(self) -> str:
+    def plural_noun_singular_verb(self) -> str:
         """As part of the subject-verb agreement rule, this method checks whether a
         plural noun is mistakenly matched to a singular verb and then return feedback.
 
@@ -78,13 +78,14 @@ class GrammarCheckingTree(GrammarTree):
                 and not self.contain_type('NN') and self.contain_type('VBZ'):
             return result_mistake
         #  Only check sentences and sub-sentence.
+        # for subtree in self.get_subtrees():
         for subtree in self._subtrees:
             if subtree._root['label'] == 'S':
-                if subtree.check_plural_noun_to_singular_verb() == result_mistake:
+                if subtree.plural_noun_singular_verb() == result_mistake:
                     return result_mistake
         return 'Maybe it is correct or it is hard to determine.'
 
-    def check_singular_noun_to_plural_verb(self) -> str:
+    def singular_noun_plural_verb(self) -> str:
         """As part of the subject-verb agreement rule, this method checks whether a
         singular noun is mistakenly matched to a plural verb and then return feedback.
 
@@ -102,14 +103,15 @@ class GrammarCheckingTree(GrammarTree):
         result_mistake = 'This sentence may mistakenly match plural verb to singular nouns.'
         # Exist singular Noun. No and. No plural nouns.
         # Exist verb phrase. Exist third singular verb.
+        #
         if self.contain_type('NN') and not self.contain_type('NNS') and not \
-                self.contain_type('CC') and self.contain_type('VP') \
-                and not self.contain_type('VBD') and not self.contain_type('VBZ'):
-            return result_mistake
+                self.contain_type('CC') and self.contain_type('VP'):
+            if not self.contain_type('VBD') and not self.contain_type('VBZ'):
+                return result_mistake
         # Only check sentence and sub-sentence.
         for s in self._subtrees:
             if s._root['label'] == 'S':
-                if s.check_singular_noun_to_plural_verb() == result_mistake:
+                if s.singular_noun_plural_verb() == result_mistake:
                     return result_mistake
         return 'Maybe it is correct or it is hard to determine.'
 
@@ -125,8 +127,8 @@ class GrammarCheckingTree(GrammarTree):
             - The sentence does not start with a pronoun.
         """
         result_so_far = set()
-        result_so_far.add(self.check_singular_noun_to_plural_verb())
-        result_so_far.add(self.check_plural_noun_to_singular_verb())
+        result_so_far.add(self.singular_noun_plural_verb())
+        result_so_far.add(self.plural_noun_singular_verb())
         result_mistake1 = 'This sentence may mistakenly match singular verb to plural nouns.'
         result_mistake2 = 'This sentence may mistakenly match plural verb to singular nouns.'
         if result_mistake1 in result_so_far and result_mistake2 not in result_so_far:
@@ -153,6 +155,7 @@ class GrammarCheckingTree(GrammarTree):
                 return 'This sentence has a good end punctuation.'
             else:
                 return 'The end of this sentence is very likely to have a wrong punctuation.'
+        return 'Something special happens. Can not detect this sentence.'
 
     def existence_of_subject(self) -> str:
         """Check whether this sentence has a subject.
@@ -170,7 +173,7 @@ class GrammarCheckingTree(GrammarTree):
         else:
             return 'Maybe it is correct or it is hard to determine.'
 
-    def multiple_verbs_in_one_simple_sentence(self) -> str:
+    def multiverbs_match_mistake(self) -> str:
         """Check whether a simple (combining) sentence contains more than one verb.
         TODO: edit docstring
         TODO: edit method name
@@ -187,9 +190,10 @@ class GrammarCheckingTree(GrammarTree):
             for vbx in vp._subtrees:
                 if vbx._root['label'] in vb_set:
                     l_copy.remove(vbx)
-                    for i in l_copy:
-                        if i._root['label'] in vb_use_set:
-                            return result_a
+                    neo_l_copy = [i for i in l_copy if i._root['label'] in vb_use_set]
+                    if neo_l_copy != []:
+                        return result_a
+
         return 'No such kind of mistakes have been detected, yet.'
 
     # ----------------------------------------------------------------
