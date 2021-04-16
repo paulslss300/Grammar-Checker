@@ -5,19 +5,20 @@ for checking grammar rules.
 
 This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
-from grammar_tree import GrammarTree
 from typing import Optional
+from grammar_tree import GrammarTree
 
 
 class GrammarCheckingTree(GrammarTree):
     """Extends the GrammarTree class by adding grammar checking methods.
+
+    Instance Attributes:
+        - subtrees:
+            Stores a list of GrammarCheckingTree objects that represent children of the
+            constituent parse tree this GrammarCheckingTree is representing. _subtrees is
+            empty means this GrammarCheckingTree represents a constituent parse tree of a word.
     """
-    # Private Instance Attributes:
-    #   - _subtrees:
-    #       Stores a list of GrammarCheckingTree objects that represent children of the
-    #       constituent parse tree this GrammarCheckingTree is representing. _subtrees is
-    #       empty means this GrammarCheckingTree represents a constituent parse tree of a word.
-    _subtrees: list["GrammarCheckingTree"]
+    subtrees: list["GrammarCheckingTree"]
 
     def __init__(self, label: str, subtrees: list["GrammarCheckingTree"], text: str = "") -> None:
         super().__init__(label, subtrees, text)
@@ -40,7 +41,8 @@ class GrammarCheckingTree(GrammarTree):
                            'r7': self.check_complete_sentence,
                            'r8': self.check_adjective,
                            'r9': self.check_verb,
-                           'r10': self.check_parallelism}
+                           'r10': self.check_parallelism
+                           }
         assert rules_lst == ["*"] or all(r in methods_mapping for r in rules_lst)
 
         feedback = []
@@ -68,9 +70,9 @@ class GrammarCheckingTree(GrammarTree):
             - The sentence does not start with a pronoun.
         """
         first = self
-        while first._subtrees != []:
-            first = first._subtrees[0]
-        if first._root['label'] == 'PRP':
+        while first.subtrees != []:
+            first = first.subtrees[0]
+        if first.root['label'] == 'PRP':
             return 'The subject is pronoun. This method can not determine.'
         result_mistake = 'This sentence may mistakenly match singular verb to plural nouns.'
         # Exist plural nouns. No and. No singular nouns. Exist third singular verb.
@@ -79,8 +81,8 @@ class GrammarCheckingTree(GrammarTree):
             return result_mistake
         #  Only check sentences and sub-sentence.
         # for subtree in self.get_subtrees():
-        for subtree in self._subtrees:
-            if subtree._root['label'] == 'S':
+        for subtree in self.subtrees:
+            if subtree.root['label'] == 'S':
                 if subtree.plural_noun_singular_verb() == result_mistake:
                     return result_mistake
         return 'Maybe it is correct or it is hard to determine.'
@@ -96,9 +98,9 @@ class GrammarCheckingTree(GrammarTree):
             - The sentence does not start with a pronoun.
         """
         first = self
-        while first._subtrees != []:
-            first = first._subtrees[0]
-        if first._root['label'] == 'PRP':
+        while first.subtrees != []:
+            first = first.subtrees[0]
+        if first.root['label'] == 'PRP':
             return 'The subject is pronoun. This method can not determine.'
         result_mistake = 'This sentence may mistakenly match plural verb to singular nouns.'
         # Exist singular Noun. No and. No plural nouns.
@@ -109,8 +111,8 @@ class GrammarCheckingTree(GrammarTree):
             if not self.contain_type('VBD') and not self.contain_type('VBZ'):
                 return result_mistake
         # Only check sentence and sub-sentence.
-        for s in self._subtrees:
-            if s._root['label'] == 'S':
+        for s in self.subtrees:
+            if s.root['label'] == 'S':
                 if s.singular_noun_plural_verb() == result_mistake:
                     return result_mistake
         return 'Maybe it is correct or it is hard to determine.'
@@ -160,13 +162,13 @@ class GrammarCheckingTree(GrammarTree):
     def existence_of_subject(self) -> str:
         """Check whether this sentence has a subject.
         """
-        if (self._root['label'] == 'ROOT' or self._root['label'] == 'S') \
+        if (self.root['label'] == 'ROOT' or self.root['label'] == 'S') \
                 and not self.contain_type('NP'):
             return 'There is no subject in the sentence.'
-        l_copy = self._subtrees.copy()
+        l_copy = self.subtrees.copy()
         l2 = l_copy.copy()
         for ss in l2:
-            if ss._root['label'] == 'VP':
+            if ss.root['label'] == 'VP':
                 l_copy.remove(ss)
         if any(i.contain_type('NP') for i in l_copy) is False:
             return 'There is likely being no subject in the sentence.'
@@ -182,15 +184,15 @@ class GrammarCheckingTree(GrammarTree):
         if not self.contain_type('VP'):
             return 'There is no verb phrase in this sentence.'
         the_sentence = self
-        vp_lst = [tree for tree in the_sentence._subtrees if tree._root['label'] == 'VP']
+        vp_lst = [tree for tree in the_sentence.subtrees if tree.root['label'] == 'VP']
         vb_set = {'VBZ', 'VBP', 'VBD', 'VBN', 'VP'}
         vb_use_set = {'VBZ', 'VBP', 'VBD'}
         for vp in vp_lst:
-            l_copy = vp._subtrees.copy()
-            for vbx in vp._subtrees:
-                if vbx._root['label'] in vb_set:
+            l_copy = vp.subtrees.copy()
+            for vbx in vp.subtrees:
+                if vbx.root['label'] in vb_set:
                     l_copy.remove(vbx)
-                    neo_l_copy = [i for i in l_copy if i._root['label'] in vb_use_set]
+                    neo_l_copy = [i for i in l_copy if i.root['label'] in vb_use_set]
                     if neo_l_copy != []:
                         return result_a
 
@@ -202,105 +204,100 @@ class GrammarCheckingTree(GrammarTree):
 
     def check_complete_sentence(self) -> bool:
         """Check whether the sentence has noun and verb
-
         Precondition:
             - self.root['label'] == 'ROOT'
-
         """
-        sentence = self._subtrees[0]
-        if not (sentence.contain_type('NP') and sentence.contain_type('VP')):
-            print('This is not a sentence because it lacks noun or verb')
+        if not (self.contain_type('NP') and self.contain_type('VP')):
             return False
         else:
             return True
 
-    def check_adjective(self, whether_question: bool = False) -> Optional[str]:
+    def check_adjective(self, whether_question: Optional[bool] = False) -> Optional[str]:
         """According to the grammar book, the position of adj has 3 cases:
                     1. adj is before a noun
                     2. adj is after a linking verb
+                    3. adj is after a noun or an indefinite pronoun, which is also a noun.
                 """
         if self.contain_type('JJ') or self.contain_type('ADJP'):
-            # check the type of self first
-            if self._root['label'] == 'SQ':
+
+            if self.root['label'] == 'SQ':
                 whether_question = True
 
-            if self._root['label'] == 'JJ':
+            if self.root['label'] == 'JJ':
                 if whether_question:
                     return 'This is a question sentence and hard to judge'
                 else:
                     return 'hard to determinate: it may lack linking-verb or use adj incorrectly'
 
-            if self._root['label'] == 'ADVP':
+            if self.root['label'] == 'ADVP':
                 return 'adj can not be adverb'
 
-            if self._root['label'] == 'FRAG':
+            if self.root['label'] == 'FRAG':
                 return 'you may lacks some linking verb or noun around adj'
 
-            if self._root['label'] == 'NP':
-                # usually, adj before a noun
+            if self.root['label'] == 'NP':
+                # adj before a noun
 
-                for i in range(0, len(self._subtrees)):
+                for i in range(0, len(self.subtrees)):
                     # eg. He is a cool Canadian boy
-                    if i != len(self._subtrees) - 1 and \
-                            (self._subtrees[i]._root['label'] == 'JJ' or
-                             self._subtrees[i]._root['label'] == 'ADJP') \
-                            and (self._subtrees[i + 1]._root['label'] == 'NN' or
-                                 self._subtrees[i + 1]._root['label'] == 'NNS'):
+                    # noun is not followed the adj or adjp(cool and young).
+                    # eg. A [cool and young](adjp) boy/ a cool boy.
+                    if i != len(self.subtrees) - 1 and \
+                            (self.subtrees[i].root['label'] == 'JJ' or
+                             self.subtrees[i].root['label'] == 'ADJP') \
+                            and (self.subtrees[i + 1].root['label'] == 'NN' or
+                                 self.subtrees[i + 1].root['label'] == 'NNS'):
                         if not whether_question:
                             return ''
                         else:
                             return 'it is a question sentence and difficult to determinate'
 
-                    # adj may after noun in question sentence: eg. is he cool?
-                    elif i != len(self._subtrees) - 1 and \
-                            (self._subtrees[i]._root['label'] == 'NN' or self._subtrees[i]._root[
-                                'label'] == 'NNP' or self._subtrees[i]._root['label'] == 'NNS' or
-                             self._subtrees[i]._root['label'] == 'NP') and \
-                            (self._subtrees[i + 1]._root['label'] == 'JJ' or
-                             self._subtrees[i + 1]._root[
+                    elif i != len(self.subtrees) - 1 and \
+                            (self.subtrees[i].root['label'] == 'NN' or self.subtrees[i].root[
+                                'label'] == 'NNP' or self.subtrees[i].root['label'] == 'NNS' or
+                             self.subtrees[i].root['label'] == 'NP') and \
+                            (self.subtrees[i + 1].root['label'] == 'JJ' or
+                             self.subtrees[i + 1].root[
                                  'label'] == 'ADJP'):
                         if whether_question:
                             return 'This is a question sentence and may no mistake'
                         else:
                             return 'There may no linking verb before adj'
-                # adj not in self.subtree
-                for x in self._subtrees:
+
+                for x in self.subtrees:
                     result = x.check_adjective(whether_question)
                     if result != '':
                         return result
 
                 return 'can not easily judge'
 
-            elif self._root['label'] == 'VP':
-                # adj must follow the verb
-                if self._subtrees[0]._root['label'] == 'JJ':
-                    # This must be wrong because the VP starts with a adj
+            elif self.root['label'] == 'VP':
+                # adj must follow the verb because the first element in VP is verb
+                if self.subtrees[0].root['label'] == 'JJ':
+                    # The man happy is.
                     return "adj in wrong position"
 
-                # usually, it should be linking-verb + adj
-                if self._subtrees[1]._root['label'] == 'JJ' or \
-                        self._subtrees[1]._root['label'] == 'ADJP' and \
-                        self._subtrees[0]._root['text'] == 'am' or self._subtrees[0]._root[
-                    'text'] == 'is' or self._subtrees[0]._root['text'] == 'are' or \
-                        self._subtrees[0]._root['text'] == 'was' or \
-                        self._subtrees[0]._root['text'] == 'were':
+                if self.subtrees[1].root['label'] == 'JJ' or \
+                        self.subtrees[1].root['label'] == 'ADJP' and \
+                        self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
+                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or \
+                        self.subtrees[0].root['text'] == 'was' or \
+                        self.subtrees[0].root['text'] == 'were':
                     # eg. The man is cool.
                     if not whether_question:
                         return ''
-                    # is the man cool?
                     else:
                         return 'this is a question sentence and difficult to judge'
                 else:
                     # NP may in the subtree of VP. eg. He is a cool Canadian boy.
-                    for x in self._subtrees:
+                    for x in self.subtrees:
                         result = x.check_adjective(whether_question)
                         if result != '':
                             return result
-
                     return 'can not easily judge'
             else:
                 # adj not in self.subtree.
-                for x in self._subtrees:
+                for x in self.subtrees:
                     result = x.check_adjective(whether_question)
                     if result != '':
                         return result
@@ -311,49 +308,48 @@ class GrammarCheckingTree(GrammarTree):
     def check_verb(self) -> Optional[str]:
         """check the verb_ing form
         case1: be-verb/like + verbing
+        case2: swimming(vbg in constituent tree) man
+         Warning: Swimming is good.('swimming' here is in noun class according
+         to the constituent tree)
         """
 
         if self.contain_type('VBG'):
-            # check the type of self
-            if self._root['label'] == 'VBG':
+            if self.root['label'] == 'VBG':
                 return 'it is hard to determinate'
-
-            if self._root['label'] == 'SQ':
+            if self.root['label'] == 'SQ':
                 # question sentence eg. is he swimming?
+                # Is the swimming man cool?
                 return 'This is a question sentence and hard to judge'
-
-            if self._root['label'] == 'SBAR':
-                for x in self._subtrees:
+            if self.root['label'] == 'SBAR':
+                for x in self.subtrees:
                     result = x.check_verb()
                     if result != '':
                         return result
+            if self.root['label'] == 'VP' and any(
+                    x.root['label'] == 'VBG' for x in self.subtrees):
+                # if VBG is in the subtree of VP
 
-            if self._root['label'] == 'VP' and any(
-                    x._root['label'] == 'VBG' for x in self._subtrees):
-                # if VBG is in the subtree of self(a VP)
-
-                if self._subtrees[0]._root['label'] == 'VBG':
-                    # if VP starts with a vbg
+                if self.subtrees[0].root['label'] == 'VBG':
                     return 'This may be true or lacks be/like or use verbing incorrectly'
 
             # If VP contains VBG
-            elif self._root['label'] == 'VP' or self._root['label'] == 'S':
-                if self._subtrees[0]._root['text'] == 'am' or \
-                        self._subtrees[0]._root[
-                            'text'] == 'is' or self._subtrees[0]._root['text'] == 'are' or \
-                        self._subtrees[0]._root['text'] == 'was' or self._subtrees[0]._root[
-                    'text'] == 'were' or self._subtrees[0]._root['text'] == 'like' or \
-                        self._subtrees[0]._root['text'] == 'likes' and \
-                        self._subtrees[1]._subtrees[0]._root['label'] == 'VBG':
+            elif self.root['label'] == 'VP' or self.root['label'] == 'S':
+                if self.subtrees[0].root['text'] == 'am' or \
+                        self.subtrees[0].root[
+                            'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or \
+                        self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root[
+                    'text'] == 'were' or self.subtrees[0].root['text'] == 'like' or \
+                        self.subtrees[0].root['text'] == 'likes' and \
+                        self.subtrees[1].subtrees[0].root['label'] == 'VBG':
                     # be/like + verbing
                     return ''
-                for x in self._subtrees:
+                for x in self.subtrees:
                     result = x.check_verb()
                     if result != '':
                         return result
 
             # vbg not in self.subtree
-            for x in self._subtrees:
+            for x in self.subtrees:
                 result = x.check_verb()
                 if result != '':
                     return result
@@ -364,14 +360,14 @@ class GrammarCheckingTree(GrammarTree):
     def check_parallelism(self) -> Optional[str]:
         """Check whether both sides of the conjunction are parallel """
         if self.contain_type('CC'):
-            for i in range(0, len(self._subtrees)):
-                if self._subtrees[i]._root['label'] == 'CC' and \
-                        self._subtrees[i - 1]._subtrees != self._subtrees[i + 1]._subtrees:
+            for i in range(0, len(self.subtrees)):
+                if self.subtrees[i].root['label'] == 'CC' and \
+                        self.subtrees[i - 1].subtrees != self.subtrees[i + 1].subtrees:
                     # if they are parallel, the elements in there subtrees are the same.
                     return 'hard to determinate: the left side of ' \
                            'the conjunction is not parallel to the right side.'
 
-            for x in self._subtrees:
+            for x in self.subtrees:
                 return x.check_parallelism()
 
         else:
