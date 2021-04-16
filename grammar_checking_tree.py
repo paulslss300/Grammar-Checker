@@ -243,22 +243,23 @@ class GrammarCheckingTree(GrammarTree):
                     # noun is not followed the adj or adjp(cool and young).
                     # eg. A [cool and young](adjp) boy/ a cool boy.
                     if i != len(self.subtrees) - 1 and \
-                            (self.subtrees[i].root['label'] == 'JJ' or
-                             self.subtrees[i].root['label'] == 'ADJP') \
-                            and (self.subtrees[i + 1].root['label'] == 'NN' or
-                                 self.subtrees[i + 1].root['label'] == 'NNS'):
+                            (self.subtrees[i].root['label'] == 'JJ'
+                             or self.subtrees[i].root['label'] == 'ADJP') \
+                            and (self.subtrees[i + 1].root['label'] == 'NN'
+                                 or self.subtrees[i + 1].root['label'] == 'NNS'):
                         if not whether_question:
                             return ''
                         else:
                             return 'it is a question sentence and difficult to determinate'
 
-                    elif i != len(self.subtrees) - 1 and \
-                            (self.subtrees[i].root['label'] == 'NN' or self.subtrees[i].root[
-                                'label'] == 'NNP' or self.subtrees[i].root['label'] == 'NNS' or
-                             self.subtrees[i].root['label'] == 'NP') and \
-                            (self.subtrees[i + 1].root['label'] == 'JJ' or
-                             self.subtrees[i + 1].root[
-                                 'label'] == 'ADJP'):
+                    elif i != len(self.subtrees) - 1 \
+                            and (self.subtrees[i].root['label'] == 'NN'
+                                 or self.subtrees[i].root['label']
+                                 == 'NNP' or self.subtrees[i].root[
+                                     'label'] == 'NNS' or self.subtrees[i].root['label'] == 'NP') \
+                            and (self.subtrees[i + 1].root['label'] == 'JJ'
+                                 or self.subtrees[i + 1].
+                                 root['label'] == 'ADJP'):
                         if whether_question:
                             return 'This is a question sentence and may no mistake'
                         else:
@@ -277,12 +278,12 @@ class GrammarCheckingTree(GrammarTree):
                     # The man happy is.
                     return "adj in wrong position"
 
-                if self.subtrees[1].root['label'] == 'JJ' or \
-                        self.subtrees[1].root['label'] == 'ADJP' and \
-                        self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
-                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or \
-                        self.subtrees[0].root['text'] == 'was' or \
-                        self.subtrees[0].root['text'] == 'were':
+                if self.subtrees[1].root['label'] == 'JJ' \
+                        or self.subtrees[1].root['label'] == 'ADJP' \
+                        and self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
+                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
+                        or self.subtrees[0].root['text'] == 'was' \
+                        or self.subtrees[0].root['text'] == 'were':
                     # eg. The man is cool.
                     if not whether_question:
                         return ''
@@ -301,6 +302,7 @@ class GrammarCheckingTree(GrammarTree):
                     result = x.check_adjective(whether_question)
                     if result != '':
                         return result
+            return ''
 
         else:
             return ''
@@ -325,8 +327,8 @@ class GrammarCheckingTree(GrammarTree):
                     result = x.check_verb()
                     if result != '':
                         return result
-            if self.root['label'] == 'VP' and any(
-                    x.root['label'] == 'VBG' for x in self.subtrees):
+            if self.root['label'] == 'VP' and any([sub.root['label'] == 'VBG' for sub
+                                                   in self.subtrees]):
                 # if VBG is in the subtree of VP
 
                 if self.subtrees[0].root['label'] == 'VBG':
@@ -334,13 +336,13 @@ class GrammarCheckingTree(GrammarTree):
 
             # If VP contains VBG
             elif self.root['label'] == 'VP' or self.root['label'] == 'S':
-                if self.subtrees[0].root['text'] == 'am' or \
-                        self.subtrees[0].root[
-                            'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or \
-                        self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root[
-                    'text'] == 'were' or self.subtrees[0].root['text'] == 'like' or \
-                        self.subtrees[0].root['text'] == 'likes' and \
-                        self.subtrees[1].subtrees[0].root['label'] == 'VBG':
+                if self.subtrees[0].root['text'] == 'am' \
+                        or self.subtrees[0].root['text'] == 'is' \
+                        or self.subtrees[0].root['text'] == 'are' \
+                        or self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root[
+                    'text'] == 'were' or self.subtrees[0].root['text'] == 'like' \
+                        or self.subtrees[0].root['text'] == 'likes' \
+                        and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
                     # be/like + verbing
                     return ''
                 for x in self.subtrees:
@@ -353,6 +355,8 @@ class GrammarCheckingTree(GrammarTree):
                 result = x.check_verb()
                 if result != '':
                     return result
+
+            return ''
 
         else:
             return ''
@@ -368,7 +372,7 @@ class GrammarCheckingTree(GrammarTree):
                            'the conjunction is not parallel to the right side.'
 
             for x in self.subtrees:
-                return x.check_parallelism()
+                x.check_parallelism()
 
         else:
             return
