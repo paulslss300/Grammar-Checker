@@ -325,7 +325,7 @@ class GrammarCheckingTree(GrammarTree):
             if self.root['label'] == 'SBAR':
                 for x in self.subtrees:
                     result = x.check_verb()
-                    if result != 'no adj inside':
+                    if result != 'no verb_ing inside':
                         return result
             if self.root['label'] == 'VP' and any([sub.root['label'] == 'VBG' for sub
                                                    in self.subtrees]):
@@ -344,22 +344,22 @@ class GrammarCheckingTree(GrammarTree):
                         or self.subtrees[0].root['text'] == 'likes' \
                         and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
                     # be/like + verbing
-                    return ''
+                    return None
                 for x in self.subtrees:
                     result = x.check_verb()
-                    if result != 'no adj inside':
+                    if result != 'no verb_ing inside':
                         return result
 
             # vbg not in self.subtree
             for x in self.subtrees:
                 result = x.check_verb()
-                if result != 'no adj inside':
+                if result != 'no verb_ing inside':
                     return result
 
             return 'can not easily judge: no error so far'
 
         else:
-            return 'no adj inside'
+            return 'no verb_ing inside'
 
     def check_parallelism(self) -> Optional[str]:
         """Check whether both sides of the conjunction are parallel """
