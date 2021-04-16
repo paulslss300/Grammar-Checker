@@ -320,10 +320,10 @@ x
                 # usually, it should be linking-verb + adj
                 condition5 = self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
                     'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or self.subtrees[0] \
-                    .root['text'] == 'was' or self.subtrees[0].root['text'] == 'were'
+                                 .root['text'] == 'was' or self.subtrees[0].root['text'] == 'were'
+
                 if self.subtrees[1].root['label'] == 'JJ' \
-                        or self.subtrees[1].root['label'] == 'ADJP' \
-                        and condition5:
+                        or self.subtrees[1].root['label'] == 'ADJP' and condition5:
                     # eg. The man is cool.
                     if whether_question:
                         return Feedback(3, 'this is a question sentence and difficult to judge')
@@ -383,14 +383,15 @@ x
             elif self.root['label'] == 'VP' or self.root['label'] == 'S':
                 condition1 = self.subtrees[0].root['text'] == 'am' or self. \
                     subtrees[0].root['text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
-                    or self.subtrees[0].root['text'] == 'was'
+                             or self.subtrees[0].root['text'] == 'was'
                 # be/like + verbing
                 if condition1 and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
                     return Feedback(1)
                 if self.subtrees[1].subtrees[0].subtrees != []:
                     if self.subtrees[0].root['text'] == 'were' or self.subtrees[0].root['text'] \
-                        == 'like' or self.subtrees[0].root['text'] == 'likes' and self.subtrees[1]\
-                            .subtrees[0].subtrees[0].root['label'] == 'VBG':
+                            == 'like' or self.subtrees[0].root['text'] == 'likes' and \
+                            self.subtrees[1] \
+                                    .subtrees[0].subtrees[0].root['label'] == 'VBG':
                         return Feedback(1)
                 # vbg not in self.subtree
                 for x in self.subtrees:
@@ -426,7 +427,6 @@ x
 
         else:
             return Feedback(1)
-
 
 # if __name__ == '__main__':
 #     import python_ta
