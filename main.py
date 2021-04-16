@@ -219,7 +219,7 @@ def test_check_verb5() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'The man who likes eating drinking.'
     test = translate(string)[0]
-    assert test.check_verb().messate == 'it is hard to determinate'
+    assert test.check_verb().message == 'it is hard to determinate'
 
 
 def test_check_parallelism() -> None:
