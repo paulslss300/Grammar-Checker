@@ -23,7 +23,6 @@ class GrammarTree:
 
     Representation Invariants:
         - (self._subtrees == []) == (self._root["text"] != "")
-        - self._root["text"] == "" or self._root["text"] is an English word or valid punctuation.
     """
     root: dict[str: str]
     subtrees: list["GrammarTree"]
