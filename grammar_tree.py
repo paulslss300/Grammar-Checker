@@ -13,15 +13,14 @@ class GrammarTree:
     Instance Attributes:
         - root:
             Stores the constituent tag (e.g. "S", "NP", "VP", "NN", etc.) of the tree
-            in _root["label"] and, if the tree represents a word, stores what the word
-            is in _root["text"] (otherwise _root["text"] is just an empty string).
+            in root["label"] and, if the tree represents a word, stores what the word
+            is in root["text"] (otherwise root["text"] is just an empty string).
         - subtrees:
             Stores a list of GrammarTree objects that represent children of the
-            constituent parse tree this GrammarTree is representing. _subtrees is
+            constituent parse tree this GrammarTree is representing. subtrees is
             empty means this GrammarTree represents a constituent parse tree of a word.
-            
     Representation Invariants:
-        - (self._subtrees == []) == (self._root["text"] != "")
+        - (self.subtrees == []) == (self.root["text"] != "")
     """
     root: dict[str: str]
     subtrees: list["GrammarTree"]
@@ -53,9 +52,8 @@ class GrammarTree:
     def find_the_last(self) -> str:
         """Return the end punctuation of the sentence represented by the tree, if
         the sentence has an end punctuation. Otherwise, the returned string is
-        the _root['text'] value of the last subtree of this tree.
-        
-        Example usages see test_find_the_last() in tests_GrammarTree_methods.py.
+        the root['text'] value of the last subtree of this tree.
+        Example usages see test_find_the_last() in tests_grammar_tree_methods.py.
         """
         s = self
         last = s.subtrees[-1]
@@ -63,8 +61,7 @@ class GrammarTree:
 
     def contain_type(self, kind: str) -> bool:
         """Return whether the entire tree contains the input type of constituent tag.
-        
-        Example usages see test_contain_type() in tests_GrammarTree_methods.py.
+        Example usages see test_contain_type() in tests_grammar_tree_methods.py.
         """
         if self.root['label'] == kind:
             return True
@@ -73,18 +70,16 @@ class GrammarTree:
 
     def contain_content(self, word_or_punc: str) -> bool:
         """Return whether the entire tree contains the input word/punctuation mark.
-        
-        Example usages see test_contain_content() in tests_GrammarTree_methods.py.
+        Example usages see test_contain_content() in tests_grammar_tree_methods.py.
         """
         if self.root['text'] == word_or_punc:
             return True
         else:
             return any(i.contain_content(word_or_punc) for i in self.subtrees)
-        
+
     def get_sentence(self) -> str:
         """Returns the English sentence represented by the tree.
-        
-        Example usages see test_get_sentence() in tests_GrammarTree_methods.py.
+        Example usages see test_get_sentence() in tests_grammar_tree_methods.py.
         """
         if self.root["text"] != "":
             # self is a leaf
