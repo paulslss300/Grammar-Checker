@@ -1,6 +1,7 @@
 """
 This file contains the GrammarTree class, which is a recursive tree data structure
 that represents a constituent parse tree of an English sentence.
+
 This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
 
@@ -18,6 +19,7 @@ class GrammarTree:
             Stores a list of GrammarTree objects that represent children of the
             constituent parse tree this GrammarTree is representing. _subtrees is
             empty means this GrammarTree represents a constituent parse tree of a word.
+            
     Representation Invariants:
         - (self._subtrees == []) == (self._root["text"] != "")
     """
@@ -52,6 +54,7 @@ class GrammarTree:
         """Return the end punctuation of the sentence represented by the tree, if
         the sentence has an end punctuation. Otherwise, the returned string is
         the _root['text'] value of the last subtree of this tree.
+        
         Example usages see test_find_the_last() in tests_GrammarTree_methods.py.
         """
         s = self
@@ -60,6 +63,7 @@ class GrammarTree:
 
     def contain_type(self, kind: str) -> bool:
         """Return whether the entire tree contains the input type of constituent tag.
+        
         Example usages see test_contain_type() in tests_GrammarTree_methods.py.
         """
         if self.root['label'] == kind:
@@ -69,20 +73,44 @@ class GrammarTree:
 
     def contain_content(self, word_or_punc: str) -> bool:
         """Return whether the entire tree contains the input word/punctuation mark.
+        
         Example usages see test_contain_content() in tests_GrammarTree_methods.py.
         """
         if self.root['text'] == word_or_punc:
             return True
         else:
             return any(i.contain_content(word_or_punc) for i in self.subtrees)
+        
+    def get_sentence(self) -> str:
+        """Returns the English sentence represented by the tree.
+        
+        Example usages see test_get_sentence() in tests_GrammarTree_methods.py.
+        """
+        if self.root["text"] != "":
+            # self is a leaf
+            return self.root["text"]
+        else:
+            sent_lst = []
+            for subtree in self.subtrees:
+                sent_lst.append(subtree.get_sentence())
+            sent_lst = [v for v in sent_lst if v != ""]
+
+            # remove the space between a word and a succeeding punctuation
+            punc_index_lst = [i for i, x in enumerate(sent_lst) if x in {",", ".", "!", "?"}]
+            sent_lst_partitioned = [sent_lst[i:j] for i, j in
+                                    zip([0] + punc_index_lst, punc_index_lst + [None])]
+            sent = ""
+            for lst in sent_lst_partitioned:
+                sent += " ".join(lst)
+            return sent
 
 
-# if __name__ == '__main__':
-#     import python_ta
-#     python_ta.check_all(config={
-#         'max-line-length': 100,
-#         'disable': ['E1136'],
-#         'extra-imports': [],
-#         'allowed-io': [],
-#         'max-nested-blocks': 4
-#     })
+if __name__ == '__main__':
+    import python_ta
+    python_ta.check_all(config={
+        'max-line-length': 100,
+        'disable': ['E1136'],
+        'extra-imports': [],
+        'allowed-io': [],
+        'max-nested-blocks': 4
+    })
