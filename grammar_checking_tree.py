@@ -77,7 +77,11 @@ class GrammarCheckingTree(GrammarTree):
         else:
             checks_lst = rules_lst
         for rule in checks_lst:
-            fb = methods_mapping[rule]()
+            if rule in {'r7', 'r8'}:
+                # r7 and r8 needs an extra [] as argument
+                fb = methods_mapping[rule]([])
+            else:
+                fb = methods_mapping[rule]()
             if fb.message == "":
                 feedback.append(f'{rule}: {fb.type_str}.')
             else:
@@ -455,7 +459,7 @@ if __name__ == '__main__':
     import python_ta
     python_ta.check_all(config={
         'max-line-length': 100,
-        'disable': ['E1136'],
+        'disable': ['E1136', 'W0622', 'R1702', 'R0912'],
         'extra-imports': ['grammar_tree', 'typing'],
         'allowed-io': [],
         'max-nested-blocks': 4
