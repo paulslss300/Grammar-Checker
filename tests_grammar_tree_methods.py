@@ -32,6 +32,16 @@ def test_contain_content() -> None:
     assert not tree.contain_content("dogs")
 
 
+def test_get_sentence() -> None:
+    """Unit tests for GrammarTree.get_sentence()."""
+    sent = "The brown fox jumped over the lazy dog!"
+    tree = translate(sent)[0]
+    assert tree.get_sentence() == sent
+    sent = "I have two brothers and one sister, and I was born last."
+    tree = translate(sent)[0]
+    assert tree.get_sentence() == sent
+
+
 if __name__ == '__main__':
     import pytest
     pytest.main(['tests_grammar_tree_methods.py'])
