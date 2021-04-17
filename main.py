@@ -229,7 +229,7 @@ def test_check_verb3() -> None:
     """This is the test function test the check_verb in file grammar_checking_tree.py"""
     string = 'He eats eating'
     test = translate(string)[0]
-    assert test.check_verb([]).message == 'it may lack be-verb/like befor verb_ing'
+    assert test.check_verb([]).message == 'it may lack be-verb/like before verb_ing'
 
 
 def test_check_verb4() -> None:
