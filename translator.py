@@ -24,8 +24,8 @@ nlp.add_pipe("benepar", config={"model": "benepar_en3"})
 
 
 def translate(text: str) -> [GrammarCheckingTree]:
-    """Return a list of GrammarTree object (each GrammarTree object represents a sentence)
-    based on the input text using the benepar library.
+    """Return a list of GrammarCheckingTree objects (each GrammarCheckingTree
+    object represents a sentence) based on the input text using the benepar library.
 
     Precondition:
         - text can only contain letters in the English alphabet and basic
@@ -42,7 +42,7 @@ def translate(text: str) -> [GrammarCheckingTree]:
 
 
 def _create_grammar_tree(tree: Any) -> GrammarCheckingTree:
-    """Return a GrammarTree object for the given constituent parse tree object
+    """Return a GrammarCheckingTree object for the given constituent parse tree object
     outputted by the benepar library.
 
     From the documentation, spaCy does not provide an official constituency parsing API,
@@ -78,11 +78,11 @@ def _create_grammar_tree(tree: Any) -> GrammarCheckingTree:
 
 
 def _create_grammar_tree_lst(lst: [Dict]) -> GrammarCheckingTree:
-    """Return a GrammarTree that is a chain (i.e. the root and every subtree in the
-    GrammarTree has only 1 child) based on the input list of dictionaries. For each
-    dictionary in the input list, the dictionary at index i + 1 is the _root value of
-    a GrammarTree that is the child of the GrammarTree whose _root value is the dictionary
-    at index i.
+    """Return a GrammarCheckingTree that is a chain (i.e. the root and every subtree in the
+    GrammarCheckingTree has only 1 child) based on the input list of dictionaries. For each
+    dictionary in the input list, the dictionary at index i + 1 is the root value of
+    a GrammarCheckingTree that is the child of the GrammarCheckingTree whose root value
+    is the dictionary at index i.
 
     Precondition:
         - len(lst) >= 1
@@ -116,7 +116,7 @@ def _debugger(sentence: str) -> None:
 
 def examples() -> None:
     """Print out (to the console) examples of translations of English text into
-    GrammarTree objects using the translate() function.
+    GrammarCheckingTree objects using the translate() function.
 
     To see what the labels mean in the printed tree, check out:
     http://www.surdeanu.info/mihai/teaching/ista555-fall13/readings/PennTreebankConstituents.html
