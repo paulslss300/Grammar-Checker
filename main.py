@@ -1,5 +1,7 @@
 """
-This file contains some test functions for the grammar checking methods.
+This file contains comprehensive unit tests for the grammar checking methods.
+
+This file is Copyright (c) 2021 Yuzhi Tang, Hongshou Ge, Zheng Luan.
 """
 
 import pytest
@@ -243,8 +245,8 @@ if __name__ == '__main__':
     import python_ta
     python_ta.check_all(config={
         'max-line-length': 100,
-        'disable': ['E1136'],
-        'extra-imports': [],
+        'disable': [],
+        'extra-imports': ['translator'],
         'allowed-io': [],
         'max-nested-blocks': 4
     })
