@@ -234,7 +234,8 @@ class GrammarCheckingTree(GrammarTree):
         else:
             return Feedback(1, "Sentence is complete.")
 
-    def check_adjective(self, whether_question: Optional[bool] = False) -> Feedback:
+    def check_adjective(self, result_so_far: list, whether_question: Optional[bool] = False) -> \
+            Feedback:
         """Check whether the adj in the sentence satisfies one of the cases bellow:
             1. adj is before a noun
             2. adj is after a linking verb
@@ -254,15 +255,19 @@ class GrammarCheckingTree(GrammarTree):
                 for i in range(0, len(self.subtrees) - 1):
                     if self.subtrees[i].root['label'] == 'NP' or 'NN' and \
                             self.subtrees[i + 1].root['label'] == 'ADJP' \
-                            or self.subtrees[i + 1].root['label'] == 'ADJ':
-                        return Feedback(1)
+                            or self.subtrees[i + 1].root['label'] == 'JJ':
+                        result_so_far.append(True)
 
             if self.root['label'] == 'JJ':
-                if whether_question:
-                    return Feedback(3, 'This is a question sentence and hard to judge')
-                else:
+                if whether_question and all(result_so_far) and len(result_so_far) != 0:
+                    return Feedback(1, 'This is a question sentence and may no error')
+                elif whether_question:
+                    return Feedback(3, 'This is a question sentence and hard to judge.')
+                elif (not all(result_so_far)) or len(result_so_far) == 0:
                     return Feedback(2, 'hard to determinate: '
                                        'it may lack linking-verb or use adj incorrectly')
+                else:
+                    return Feedback(1)
 
             if self.root['label'] == 'ADVP':
                 return Feedback(2, 'adj can not be adverb')
@@ -272,79 +277,94 @@ class GrammarCheckingTree(GrammarTree):
 
             if self.root['label'] == 'NP':
                 # usually, adj before a noun
+                if any(sub.root['label'] == 'JJ' for sub in self.subtrees) \
+                        or any(sub.root['label'] == 'ADJP' for sub in self.subtrees):
 
-                for i in range(0, len(self.subtrees) - 1):
-                    # eg. He is a cool Canadian boy
-                    # noun is not followed the adj or adjp(cool and young).
-                    # eg. A [cool and young](adjp) boy/ a cool boy.
+                    for i in range(0, len(self.subtrees) - 1):
+                        # eg. He is a cool Canadian boy
+                        # noun is not followed the adj or adjp(cool and young).
+                        # eg. A [cool and young](adjp) boy/ a cool boy.
 
-                    condition1 = self.subtrees[i].root['label'] == 'JJ' or self.subtrees[i] \
-                        .root['label'] == 'ADJP'
-                    condition2 = self.subtrees[i + 1].root['label'] == 'NN' or self. \
-                        subtrees[i + 1].root['label'] == 'NNS'
-                    if condition1 and condition2:
-                        if whether_question:
-                            return Feedback(3, 'it is a question sentence and '
-                                               'difficult to determinate')
-                        else:
-                            return Feedback(1)
-                    # adj may after noun in question sentence: eg. is he cool?
-                    condition3 = (self.subtrees[i].root['label'] == 'NN'
-                                  or self.subtrees[i].root['label']
-                                  == 'NNP' or self.subtrees[i].root['label'] == 'NNS' or self.
-                                  subtrees[i].root['label'] == 'NP')
-                    condition4 = (self.subtrees[i + 1].root['label'] == 'JJ'
-                                  or self.subtrees[i + 1].
-                                  root['label'] == 'ADJP')
-                    if condition3 and condition4:
-                        if whether_question:
-                            return Feedback(1, 'This is a question sentence and may no mistake')
-                        else:
-                            return Feedback(2, 'There may no linking verb before adj')
+                        condition1 = self.subtrees[i].root['label'] == 'JJ' or self.subtrees[i] \
+                            .root['label'] == 'ADJP'
+                        condition2 = self.subtrees[i + 1].root['label'] == 'NN' or self. \
+                            subtrees[i + 1].root['label'] == 'NNS'
+                        if condition1 and condition2:
+                            if whether_question:
+                                return Feedback(3, 'it is a question sentence and '
+                                                'difficult to determinate')
+                            else:
+                                result_so_far.append(True)
+                                continue
+                        # adj may after noun in question sentence: eg. is he cool?
+                        condition3 = (self.subtrees[i].root['label'] == 'NN'
+                                      or self.subtrees[i].root['label']
+                                      == 'NNP' or self.subtrees[i].root['label'] == 'NNS' or self.
+                                      subtrees[i].root['label'] == 'NP')
+                        condition4 = (self.subtrees[i + 1].root['label'] == 'JJ'
+                                      or self.subtrees[i + 1].
+                                      root['label'] == 'ADJP')
+                        if condition3 and condition4:
+                            if whether_question:
+                                return Feedback(1, 'This is a question sentence and may no mistake')
+                            else:
+                                return Feedback(2, 'There may no linking verb before adj')
+                        # Adj follows adj (eg. A cool British boy.)
+                        elif condition1 and condition4:
+                            result_so_far.append(True)
+                            continue
+                        elif condition1 and not condition2:
+                            return Feedback(2, 'Noun may not follow the adj.')
+                if self.subtrees[len(self.subtrees) - 1].root['label'] == 'JJ' \
+                        or self.subtrees[len(self.subtrees) - 1].root['label'] == 'ADJP':
+                    return Feedback(2, 'Noun may not follow the adj.')
                 # if adj not in self._subtree
                 for x in self.subtrees:
-                    result = x.check_adjective(whether_question)
-                    if result.message != 'no adj inside or use adj wrongly':
+                    result = x.check_adjective(result_so_far, whether_question)
+                    if result.message != 'no adj inside or use adj wrongly' and result.type != 1:
                         return result
 
                 return Feedback(1, 'can not easily judge: no error so far')
 
             elif self.root['label'] == 'VP' or self.root['label'] == 'S':
-                # adj must follow the verb
-                if self.subtrees[0].root['label'] == 'JJ':
-                    # This must be wrong because the VP starts with a adj
-                    return Feedback(2, 'adj in wrong position, maybe lack linking-verb')
-                # usually, it should be linking-verb + adj
-                condition5 = self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
-                    'text'] == 'is' or self.subtrees[0].root['text'] == 'are' or self.subtrees[0] \
-                    .root['text'] == 'was' or self.subtrees[0].root['text'] == 'were'
-                if self.subtrees[1].root['label'] == 'JJ' \
-                        or self.subtrees[1].root['label'] == 'ADJP' \
-                        and condition5:
-                    # eg. The man is cool.
-                    if whether_question:
-                        return Feedback(3, 'this is a question sentence and difficult to judge')
+                if any(sub.root['label'] == 'JJ' for sub in self.subtrees) \
+                        or any(sub.root['label'] == 'ADJP' for sub in self.subtrees):
+                    # adj must follow the verb
+                    if self.subtrees[0].root["label"] == 'JJ':
+                        # This must be wrong because the VP starts with a adj
+                        return Feedback(2, 'adj in wrong position, maybe lack linking-verb')
+
+                    # usually, it should be linking-verb + adj
+                    condition5 = self.subtrees[0].root['text'] == 'am' or self.subtrees[0].root[
+                        'text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
+                        or self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root['text'] \
+                        == 'were'
+                    if len(self.subtrees) < 2:
+                        return Feedback(2, 'maybe lack linking-verb')
+                    condition6 = (self.subtrees[1].root['label'] == 'JJ'
+                                  or self.subtrees[1].root['label'] == 'ADJP')
+                    if condition6 and condition5:
+                        result_so_far.append(True)
                     else:
-                        return Feedback(1)
-                else:
-                    # if adj not in self._subtree
-                    for x in self.subtrees:
-                        result = x.check_adjective(whether_question)
-                        if result.message != 'no adj inside or use adj wrongly':
-                            return result
-                    return Feedback(1, 'can not easily judge: no error so far')
+                        return Feedback(2, 'There may no linking verb before adj')
+                # if adj not in self._subtree
+                for x in self.subtrees:
+                    result = x.check_adjective(result_so_far, whether_question)
+                    if result.message != 'no adj inside or use adj wrongly' and result.type != 1:
+                        return result
+                return Feedback(1, 'can not easily judge: no error so far')
             else:
                 # not types listed above
                 for x in self.subtrees:
-                    result = x.check_adjective(whether_question)
-                    if result.message != 'no adj inside or use adj wrongly':
+                    result = x.check_adjective(result_so_far, whether_question)
+                    if result.message != 'no adj inside or use adj wrongly' and result.type != 1:
                         return result
             return Feedback(1, 'can not easily judge: no error so far')
 
         else:
             return Feedback(2, 'no adj inside or use adj wrongly')
 
-    def check_verb(self) -> Feedback:
+    def check_verb(self, result_so_far: list) -> Feedback:
         """check whether the verb-ing form in the sentence satisfies the case below:
             case1: be-verb/like + verbing
 
@@ -357,7 +377,10 @@ class GrammarCheckingTree(GrammarTree):
         if self.contain_type('VBG'):
             # check the type of self
             if self.root['label'] == 'VBG':
-                return Feedback(3, 'it is hard to determinate')
+                if all(result_so_far) and len(result_so_far) != 0:
+                    return Feedback(1)
+                else:
+                    return Feedback(2, 'it may lack be-verb/like before verb_ing')
 
             if self.root['label'] == 'SQ':
                 # question sentence eg. is he swimming?
@@ -365,43 +388,43 @@ class GrammarCheckingTree(GrammarTree):
 
             if self.root['label'] == 'SBAR':
                 for x in self.subtrees:
-                    result = x.check_verb()
-                    if result.message != 'no verb_ing inside or use verb_ing incorrectly':
+                    result = x.check_verb(result_so_far)
+                    if result.message != 'no verb_ing inside or use verb_ing incorrectly' \
+                            and result.type != 1:
                         return result
 
-            # if VBG is in the subtree of VP
-            if self.root['label'] == 'VP' and any([sub.root['label'] == 'VBG' for sub
-                                                   in self.subtrees]):
-                if self.subtrees[0].root['label'] == 'VBG':
-                    # if VP starts with a vbg
-                    return Feedback(2, 'This may lack be/like or use verbing incorrectly')
+            # If VP or S contains VBG
+            if self.root['label'] == 'VP' or self.root['label'] == 'S':
 
-            # If VP contains VBG
-            elif self.root['label'] == 'VP' or self.root['label'] == 'S':
                 condition1 = self.subtrees[0].root['text'] == 'am' or self. \
                     subtrees[0].root['text'] == 'is' or self.subtrees[0].root['text'] == 'are' \
-                    or self.subtrees[0].root['text'] == 'was'
+                    or self.subtrees[0].root['text'] == 'was' or self.subtrees[0].root['text'] \
+                    == 'were'
                 # be/like + verbing
-                if condition1 and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
-                    return Feedback(1)
-                if self.subtrees[1].subtrees[0].subtrees != []:
-                    if self.subtrees[0].root['text'] == 'were' or self.subtrees[0].root['text'] \
-                        == 'like' or self.subtrees[0].root['text'] == 'likes' and self.subtrees[1]\
-                            .subtrees[0].subtrees[0].root['label'] == 'VBG':
+                if len(self.subtrees) > 1:
+                    if condition1 and self.subtrees[1].subtrees[0].root['label'] == 'VBG':
+                        result_so_far.append(True)
+                if self.subtrees[0].root['text'] \
+                        == 'like' or self.subtrees[0].root['text'] == 'likes':
+                    if self.subtrees[1].subtrees[0].root['label'] == 'VBG':
+                        return Feedback(1)
+                    if self.subtrees[1].subtrees[0].subtrees[0].root['label'] == 'VBG':
                         return Feedback(1)
                 # vbg not in self.subtree
                 for x in self.subtrees:
-                    result = x.check_verb()
-                    if result.message != 'no verb_ing inside or use verb_ing incorrectly':
+                    result = x.check_verb(result_so_far)
+                    if result.message != 'no verb_ing inside or use verb_ing incorrectly' \
+                            and result.type != 1:
                         return result
 
             # not types listed above
             for x in self.subtrees:
-                result = x.check_verb()
-                if result.message != 'no verb_ing inside or use verb_ing incorrectly':
+                result = x.check_verb(result_so_far)
+                if result.message != 'no verb_ing inside or use verb_ing incorrectly' \
+                        and result.type != 1:
                     return result
 
-            return Feedback(1, 'can not easily judge: no error so far')
+            return Feedback(1, 'can not easily judge')
 
         else:
             return Feedback(2, 'no verb_ing inside or use verb_ing incorrectly')
@@ -422,7 +445,7 @@ class GrammarCheckingTree(GrammarTree):
             for x in self.subtrees:
                 x.check_parallelism()
 
-            return Feedback(1)
+            return Feedback(1, 'no detected error so far.')
 
         else:
             return Feedback(1)
