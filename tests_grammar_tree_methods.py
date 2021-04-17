@@ -28,8 +28,9 @@ def test_contain_content() -> None:
     tree = translate("The brown fox jumped over the lazy dog.")[0]
     assert tree.contain_content("lazy")
     assert tree.contain_content(".")
+    assert tree.contain_content("dog")
     assert not tree.contain_content("?")
-    assert not tree.contain_content("dogs")
+    assert not tree.contain_content("dog.")
 
 
 def test_get_sentence() -> None:
