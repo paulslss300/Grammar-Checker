@@ -19,7 +19,7 @@ class Feedback:
         - type: string description of the type of feedback.
         - message: message accompanied with the feedback.
     Representation Invariants:
-        - self.type in {"Possible Error", "Test Ineffective", "Error Undetected"}
+        - self.type_str in {"Possible Error", "Test Ineffective", "Error Undetected"}
     """
     type: int
     type_str: str
@@ -63,10 +63,10 @@ class GrammarCheckingTree(GrammarTree):
                            'r3': self.check_noun_to_verb,
                            'r4': self.check_end_punctuation,
                            'r5': self.existence_of_subject,
-                           # 'r6': self.check_complete_sentence,
-                           # 'r7': self.check_adjective,
-                           # 'r8': self.check_verb,
-                           # 'r9': self.check_parallelism
+                           'r6': self.check_complete_sentence,
+                           'r7': self.check_adjective,
+                           'r8': self.check_verb,
+                           'r9': self.check_parallelism
                            }
         assert rules_lst == ["*"] or all(r in methods_mapping for r in rules_lst)
 
@@ -94,7 +94,7 @@ class GrammarCheckingTree(GrammarTree):
         E.g. "The ships sail away." is wrong while "The ships sails away." is correct.
         IMPORTANT: This method may be ineffective for certain sentence types (see
         Discussion in project report).
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         Precondition:
             - The sentence does not start with a pronoun as the subject.
         """
@@ -122,7 +122,7 @@ class GrammarCheckingTree(GrammarTree):
         E.g. "The ship sail away." is wrong while "The ship sails away." is correct.
         IMPORTANT: This method may be ineffective for certain sentence types (see
         Discussion in project report).
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         Precondition:
             - The sentence does not start with a pronoun.
         """
@@ -151,7 +151,7 @@ class GrammarCheckingTree(GrammarTree):
         noun is mistakenly matched to a singular verb and then return feedback.
         IMPORTANT: This method may be ineffective for certain sentence types (see
         Discussion in project report).
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         Precondition:
             - The sentence does not start with a pronoun.
         """
@@ -182,7 +182,7 @@ class GrammarCheckingTree(GrammarTree):
         as it lacks an end punctuation. "He is good." does have correct end punctuation.
         IMPORTANT: This method may be ineffective for certain sentence types (see
         Discussion in project report).
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         """
         if not self.contain_content('!') and not self.contain_content('?') \
                 and not self.contain_content('.'):
@@ -201,7 +201,7 @@ class GrammarCheckingTree(GrammarTree):
         """Check whether this sentence has a subject.
         IMPORTANT: This method may be ineffective for certain sentence types (see
         Discussion in project report).
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         """
         if self.root['label'] == 'S' and not self.contain_type('NP'):
             return Feedback(2, 'There is no subject in the sentence.')
@@ -218,9 +218,6 @@ class GrammarCheckingTree(GrammarTree):
     # ----------------------------------------------------------------
     # ------------- Below are Caules' methods ------------------------
     # ----------------------------------------------------------------
-    # Check whether the sentence represented by the tree has a noun phrase
-    #             and a verb phrase (i.e. minimum requirement for the sentence to be
-    #             complete).
 
     def check_complete_sentence(self) -> Feedback:
         """Check whether the sentence represented by the tree has a noun phrase
@@ -230,7 +227,7 @@ class GrammarCheckingTree(GrammarTree):
         eg. 'He happy.' is not a complete sentence because it lacks VP.
             'Is cool.' is not a complete sentence because it lacks NP.
 
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         """
         if not (self.contain_type('NP') and self.contain_type('VP')):
             return Feedback(2, "Sentence is incomplete.")
@@ -239,17 +236,17 @@ class GrammarCheckingTree(GrammarTree):
 
     def check_adjective(self, whether_question: Optional[bool] = False) -> Feedback:
         """Check whether the adj in the sentence satisfies one of the cases bellow:
-                    1. adj is before a noun
-                    2. adj is after a linking verb
-x
-            eg. 'He is cool.' satisfies the case 2.
-                'The man who play happy.' does not satisfy both cases.
+            1. adj is before a noun
+            2. adj is after a linking verb
 
-            IMPORTANT: This method may be ineffective for certain sentence types (see
-            Discussion in project report).
+        eg. 'He is cool.' satisfies the case 2.
+            'The man who play happy.' does not satisfy both cases.
 
-            Example usages see TODO in main.py.
-                """
+        IMPORTANT: This method may be ineffective for certain sentence types (see
+        Discussion in project report).
+
+        Example usages see main.py.
+        """
         if self.contain_type('JJ') or self.contain_type('ADJP'):
             # check the type of self first
             if self.root['label'] == 'SQ':
@@ -348,13 +345,13 @@ x
             return Feedback(2, 'no adj inside or use adj wrongly')
 
     def check_verb(self) -> Feedback:
-        """check whether the verb_ing form in the sentence satisfies the case below:
-                case1: be-verb/like + verbing
+        """check whether the verb-ing form in the sentence satisfies the case below:
+            case1: be-verb/like + verbing
 
         eg. 'He is drinking.' satisfies it.
             'The man who likes drinking is happy.' satisfies it.
 
-        Example usages see TODO in main.py.
+        Example usages see main.py.
         """
 
         if self.contain_type('VBG'):
@@ -410,7 +407,10 @@ x
             return Feedback(2, 'no verb_ing inside or use verb_ing incorrectly')
 
     def check_parallelism(self) -> Feedback:
-        """Check whether both sides of the conjunction are parallel. """
+        """Check whether both sides of the conjunction are the same constituent type.
+
+        Example usages see main.py.
+        """
         if self.contain_type('CC'):
             for i in range(0, len(self.subtrees)):
                 if self.subtrees[i].root['label'] == 'CC' and \
